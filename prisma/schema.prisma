@@ -15,10 +15,12 @@ enum Role {
 }
 
 model User {
-    id        Int     @id @default(autoincrement())
-    email     String  @unique
-    firstName String?
-    lastName  String?
-    password  String?
-    role      Role
+    id           Int     @id @default(autoincrement())
+    email        String  @unique
+    username     String  @unique
+    firstName    String?
+    lastName     String?
+    password     String?
+    refreshToken String?
+    role         Role
 }

@@ -5,13 +5,17 @@ import {
     HttpCode,
     HttpStatus,
     Post,
-    Request,
+    Req,
     Res,
+    UseGuards,
 
 } from '@nestjs/common';
+import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { Public } from './constants';
+import { AuthDto } from './dto/auth.dto';
+import { RefreshTokenGuard } from './guard/refreshToken.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -19,31 +23,27 @@ export class AuthController {
 
     @Public()
     @HttpCode(HttpStatus.OK)
-    @Post('Adminlogin')
-    async signIn(@Body() signInDto: Record<string, any>, @Res() res: Response) {
-        const token = await this.authService.signIn(signInDto.email, signInDto.password);
-        if (token) {
-            return res.status(HttpStatus.CREATED).json(token.access_token);
-        } else {
-            return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Username or password is incorrect' })
-        }
-
+    @Post('login')
+    signin(@Body() data: AuthDto) {
+        return this.authService.signIn(data);
     }
-    // @Public()
-    // @HttpCode(HttpStatus.OK)
-    // @Post('Adminlogin')
-    // async signIn(@Body() signInDto: Record<string, any>, @Res() res: Response) {
-    //     const token = await this.authService.signIn(signInDto.username, signInDto.password);
-    //     if (token) {
-    //         return res.status(HttpStatus.CREATED).json(token.access_token);
-    //     } else {
-    //         return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Username or password is incorrect' })
-    //     }
 
+
+    // @Post('signup')
+    // signup(@Body() createUserDto: CreateUserDto) {
+    //   return this.authService.signUp(createUserDto);
     // }
 
-    @Get('profile')
-    getProfile(@Request() req) {
-        return req.user;
+    @Get('logout')
+    logout(@Req() req: Request) {
+        this.authService.logout(req.user['sub']);
+    }
+
+    @UseGuards(RefreshTokenGuard)
+    @Get('refresh')
+    refreshTokens(@Req() req: Request) {
+        const userId = req.user['sub'];
+        const refreshToken = req.user['refreshToken'];
+        return this.authService.refreshTokens(userId, refreshToken);
     }
 }
