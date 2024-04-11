@@ -12,15 +12,91 @@ enum Role {
     ETUDIANT_RESPONSABLE
     ENSEIGNANT
     RESPONSABLE_DEPARTEMENT
+    RESPONSABLE_PEDAGOGIQUE
+    CHEF_DEPARTEMENT
+    MEMBRE_EQUIPE_PEDAGOGIQUE
+    MEMBRE_COMMISSION_PEDAGOGIQUE
+    DIRECTEUR_ETUDES
 }
 
 model User {
-    id           Int     @id @default(autoincrement())
-    email        String  @unique
-    username     String  @unique
-    firstName    String?
-    lastName     String?
-    password     String?
-    refreshToken String?
-    role         Role
+    id        Int     @id @default(autoincrement())
+    email     String  @unique
+    username  String  @unique
+    firstName String?
+    lastName  String?
+    password  String?
+    role      Role
+    // matiereEnseignant MatiereEnseignant[]
+    idClasse  Int?
+    classe    Classe? @relation(fields: [idClasse], references: [id])
 }
+
+model CoursDansCahierDetexte {
+    id              Int           @id @default(autoincrement())
+    enseignant      String
+    selectedCourse  String
+    dateCours       DateTime
+    heureDebut      String
+    heureFin        String
+    contenu         String?
+    idCahierDeTexte Int
+    CahierDeTexte   CahierDeTexte @relation(fields: [idCahierDeTexte], references: [id])
+}
+
+model CahierDeTexte {
+    id                     Int                      @id @default(autoincrement())
+    titre                  String
+    idClasse               Int
+    coursDansCahierDetexte CoursDansCahierDetexte[]
+    classe                 Classe                   @relation(fields: [idClasse], references: [id])
+}
+
+// model Matiere {
+//     id                Int                 @id @default(autoincrement())
+//     nomMatiere        String?
+//     matiereEnseignant MatiereEnseignant[]
+// }
+
+model Classe {
+    id            Int             @id @default(autoincrement())
+    nomClasse     String?
+    etudiants     User[]
+    cahierDeTexte CahierDeTexte[]
+}
+
+model Avis {
+    id                     Int     @id @default(autoincrement())
+    selectedCourse         String
+    syllabusProvided       String
+    objectivesClear        String
+    contentAligned         String
+    courseMaterialProvided String
+    contentRespected       String
+    scheduleRespected      String
+    overallSatisfaction    String
+    additionalSuggestions  String?
+    description            String?
+}
+
+model Syllabus {
+    id                   Int    @id @default(autoincrement())
+    annee                String
+    nomCours             String
+    nombreHeures         Int
+    nombreCredits        Int
+    objectifGeneral      String
+    objectifsSpecifiques String
+    professeur           String
+    contenu              String
+    evaluation           String
+}
+
+// model MatiereEnseignant {
+//     id        Int     @id @default(autoincrement())
+//     idUser    Int
+//     user      User    @relation(fields: [idUser], references: [id])
+//     idMatiere Int
+//     matiere   Matiere @relation(fields: [idMatiere], references: [id])
+//     // avis      Avis[]   
+// }
